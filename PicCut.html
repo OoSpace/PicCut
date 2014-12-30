@@ -1,0 +1,304 @@
+//PicCut
+//author:oospace
+//email:oospace@foxmail.com
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="renderer" content="webkit"/>
+<meta http-equiv="X-UA-Compatible" content="IE=8" /> 
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>图片切割</title>
+</head>
+<style>
+body{
+	background-color:#DCDCDC;	
+}
+.container{
+	position:absolute;
+	border:1px solid black;
+	border-radius:3px;
+	background-color:#000000;
+	
+}
+.imgLayer{
+	position:absolute;
+}
+.controlLayer{
+	position:absolute;
+	zoom:1;
+	border:1px dashed black;
+	/*cursor:move;*/
+}
+.mark{
+	border:1px solid #000000;
+	background-color:#ffffff;
+	opacity:0.8;
+	filter:alpha(opacity=80);
+	padding:2px;
+	height:3px;
+	width:3px;
+}
+.leftTop{
+	position:absolute;
+	top:-3px;
+	left:-3px;
+	cursor: se-resize;
+}
+.leftCenter{
+	position:absolute;
+	top:50%;
+	margin-top:-4px;
+	left:-3px;
+	cursor: w-resize;
+}
+.topCenter{
+	position:absolute;
+	top:-3px;
+	left:50%;
+	margin-left:-4px;
+	cursor: ns-resize;
+}
+.rightTop{
+	position:absolute;
+	top:-3px;
+	right:-3px;
+	cursor: ne-resize;
+}
+.rightCenter{
+	position:absolute;
+	top:50%;
+	margin-top:-4px;
+	right:-3px;
+	cursor: e-resize;
+}
+.leftBottom{
+	position:absolute;
+	bottom:-3px;
+	left:-3px;
+	cursor: ne-resize;
+}
+.bottomCenter{
+	position:absolute;
+	bottom:-3px;
+	left:50%;
+	margin-left:-4px;
+	cursor: s-resize;
+}
+.rightBottom{
+	position:absolute;
+	bottom:-3px;
+	right:-3px;
+	cursor: se-resize;
+}
+#imgStyle{
+	display:none;
+}
+#rect{
+	position:absolute;
+	right:0px;
+}
+.body{
+        padding:20px 30px 30px 30px;
+        position:absolute;
+        top:150px;
+        left:50%;
+        margin-left:-500px;
+        width:940px;
+        min-width:940px;
+        background-color:#F8F8FF;
+        border:1px solid #DCDCDC;
+        border-bottom:5px solid #BA55D3;
+        border-radius:3px;
+        
+    }
+</style>
+<body>
+<img  id="imgStyle" />
+    <div class="container">
+	</div>
+	
+		<div  class="imgLayer">
+		</div>
+	
+	<div class="controlLayer">
+		<div class="leftTop  mark"></div>
+		<div class="topCenter mark"></div>
+		<div class="rightTop mark"></div>
+		<div class="leftCenter mark"></div>
+		<div class="rightCenter mark"></div>
+		<div class="leftBottom mark"></div>
+		<div class="bottomCenter mark"></div>
+		<div class="rightBottom mark"></div>
+	</div>
+	
+	<div id="rect"></div>
+</body>
+<script  type="text/javascript" src="jquery-1.10.2.min.js"></script>
+<script>
+
+//拖动效果代码
+//var _z=9999;
+$(document).ready(function(){
+
+var img=$(".imgLayer");//图片切割层
+var ctain=$(".container");//容器
+var imgStyle=$("#imgStyle")//
+
+//初始化图片地址（注意，只能在onload之前添加图片才有效）	
+imgStyle.attr("src","cut.jpg");//图片地址
+ctain.css({background:"url(cut.jpg) top  left  no-repeat"});
+img.css({background:"url(cut.jpg) top  left  no-repeat"});
+
+
+ var _move=false;//移动标记
+ var _x,_y;//鼠标离控件左上角的相对位置
+ var wd;//窗口
+ 
+ 
+ //设置宽度和高度
+ 
+    $(".controlLayer").click(function(){
+        //alert("click");//点击（松开后触发）
+     this.style.cursor = "default";//鼠标形状
+     //this.style.zIndex = 999;
+        }).mousedown(function(e){
+		
+        _move=true;//移动
+		_zoom=false;//缩放
+		
+        wd=$(this);
+        this.style.cursor = "move";//鼠标形状
+        //this.style.zIndex = _z;//窗口层次
+        //_z++;
+		
+        _x=e.pageX-(isNaN(parseInt(wd.css("left")))?0:parseInt(wd.css("left")));
+        _y=e.pageY-(isNaN(parseInt(wd.css("top")))?0:parseInt(wd.css("top")));
+		
+		$(".mark").mousemove(function(){
+			_zoom=true;
+
+		}).mouseup(function(){
+			_zoom=false;
+			
+		})
+       /*  wd.fadeTo(20, 0.25); *///点击后开始拖动并透明显示
+        $(document).mousemove(function(e){
+           
+                var x=e.pageX-_x;//移动时根据鼠标位置计算控件左上角的绝对位置
+                var y=e.pageY-_y;
+				
+				//$("#rect").html(x+" " +y);
+				//设置controlLayer的范围
+				var w_ctn=parseInt(ctain.css("width"));
+				var h_ctn=parseInt(ctain.css("height"));
+				var l_ctn=parseInt(ctain.css("left"));
+				var t_ctn=parseInt(ctain.css("top"));
+				
+				var l_wd=parseInt(wd.css("left"));
+				var t_wd=parseInt(wd.css("top"));
+				var  w_wd=parseInt(wd.css("width"));
+				var  h_wd=parseInt(wd.css("height"));
+				
+				var  imgLeft=parseInt(imgStyle.css("left"));
+				var imgTop=parseInt(imgStyle.css("top"));
+				
+				l_ctn=isNaN(l_ctn)?0:l_ctn;
+				t_ctn=isNaN(t_ctn)?0:t_ctn;
+				
+				
+				
+			 if(_move&&!_zoom){	
+			 
+				//设置imgLayer的范围
+				var top=y-t_ctn+"px";
+				var right=parseInt(wd.css("width"))+x-l_ctn+"px";
+				var bottom=parseInt(wd.css("height"))+y-t_ctn+"px";
+				var left=x-l_ctn+"px";
+				var rect="rect( "+top+" "+right+" "+bottom+" "+left+" )";
+			 
+				//根据container控制移动范围
+				if(w_ctn>=(x+w_wd-l_ctn)&&(x>=l_ctn)&&h_ctn>=(y+h_wd-t_ctn)&&(y>=t_ctn)){
+					wd.css({left:x,top:y});//控件新位置
+					img.css("clip",rect);//切割位置
+					
+					$("#rect").html(rect);
+				}
+
+				
+            }else if(_move&&_zoom){
+			
+				wd.css({width:e.pageX-l_wd,height:e.pageY-t_wd});
+				
+				var rect="rect( "+(t_wd-t_ctn)+"px  "+(e.pageX-l_ctn)+"px  "+(e.pageY-t_ctn)+"px  "+(l_wd-l_ctn)+"px )";
+				img.css("clip",rect);//切割位置
+				
+				$("#rect").html(e.pageX+" "+e.pageY);
+			}
+        }).mouseup(function(){
+        _move=false;
+        /* wd.fadeTo("fast", 1); *///松开鼠标后停止移动并恢复成不透明
+      });
+    
+	
+		
+	
+	});
+    
+});
+
+
+//初始化
+window.onload=function(){
+	
+	var img=$(".imgLayer");//图片切割层
+	var ctain=$(".container");//容器
+	var imgStyle=$("#imgStyle")//
+	var control=$(".controlLayer");
+		
+	var  imgWidth=imgStyle.css("width");//注意只能放在window.onload里面，因为只有图片加载完毕以后才能它的获取大小
+	var  imgHeight=imgStyle.css("height");
+	
+	
+	
+	var  imgLeft=30;//初始化container的位置
+	var imgTop=40;
+	
+	img.css({width:imgWidth,height:imgHeight});//根据图片本身大小自动设置容器层container和图片切割层的大小
+	ctain.css({width:imgWidth,height:imgHeight,opacity:"0.4",filter:"alpha(opacity=40)",left:imgLeft+"px",top:imgTop+"px"});
+
+	
+	var  lf=imgLeft;//初始化控制层controlLayer大小及切割显示层imgLayer大小
+	var	tp=imgTop;
+	var	wt=ht=90;
+			
+	lf=isNaN(lf)?0:lf;
+	tp=isNaN(tp)?0:tp;
+
+	//调整三层的位置
+	control.css({left:lf+"px",top:tp+"px",width:wt+"px",height:ht+"px"});
+	ctain.css({left:lf+"px",top:tp+"px"});
+	img.css({left:lf+"px",top:tp+"px"});
+	
+	//初始化切割层显示区域
+	var rect="rect( "+0+"px  "+wt+"px  "+ht+"px  "+0+"px )";
+	img.css({"clip":rect});
+
+	$("#rect").html(img.css("clip"));
+}
+
+function resize(){
+	var img=$(".imgLayer");//图片切割层
+	var ctain=$(".container");//容器
+	var imgStyle=$("#imgStyle")//
+	var control=$(".controlLayer");
+	
+	
+
+}
+</script>
+</html>
